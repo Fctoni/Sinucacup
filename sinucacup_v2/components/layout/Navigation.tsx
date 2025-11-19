@@ -7,7 +7,6 @@ const navItems = [
   { href: '/', label: '🏠 Inicio', emoji: '🏠' },
   { href: '/jogadores', label: '👥 Jogadores', emoji: '👥' },
   { href: '/edicoes', label: '🏆 Edicoes', emoji: '🏆' },
-  { href: '/chaveamento', label: '📊 Chaveamento', emoji: '📊' },
   { href: '/ranking', label: '📈 Ranking', emoji: '📈' },
 ]
 

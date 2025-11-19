@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
-import { getEdicao, updateEdicaoStatus, iniciarCampeonato } from '@/lib/services/edicoes'
+import { getEdicao, updateEdicaoStatus, iniciarCampeonato, encerrarEDistribuirPontos } from '@/lib/services/edicoes'
 import { getInscricoesPorEdicao } from '@/lib/services/inscricoes'
 import { getDuplasPorEdicao, gerarDuplasAutomaticas, deleteDupla, validarExclusaoDupla, trocarJogadoresEntreDuplas, reordenarDuplas, reorganizarPosicoesDuplas } from '@/lib/services/duplas'
 import { gerarChaveamento, getPartidasPorEdicao, getByesDaEdicao, registrarVencedor, validarRegistroVencedor, editarResultado } from '@/lib/services/partidas'
@@ -13,8 +13,8 @@ import GerenciarInscricoesModal from '@/components/inscricoes/GerenciarInscricoe
 import DuplaCardDraggable from '@/components/duplas/DuplaCardDraggable'
 import CriarDuplaManualModal from '@/components/duplas/CriarDuplaManualModal'
 import IniciarCampeonatoModal from '@/components/edicoes/IniciarCampeonatoModal'
+import EncerrarCampeonatoModal from '@/components/edicoes/EncerrarCampeonatoModal'
 import Bracket from '@/components/chaveamento/Bracket'
-import BannerEmAndamento from '@/components/shared/BannerEmAndamento'
 import ConfirmarVencedorModal from '@/components/chaveamento/ConfirmarVencedorModal'
 import EditarResultadoModal from '@/components/chaveamento/EditarResultadoModal'
 import ProgressoFases from '@/components/chaveamento/ProgressoFases'
@@ -39,6 +39,10 @@ export default function EdicaoDetalhesPage() {
   const [partidaSelecionada, setPartidaSelecionada] = useState<PartidaComDuplas | null>(null)
   const [modalVencedorOpen, setModalVencedorOpen] = useState(false)
   const [modalEditarOpen, setModalEditarOpen] = useState(false)
+  const [modalEncerrarOpen, setModalEncerrarOpen] = useState(false)
+  const [finalConcluida, setFinalConcluida] = useState(false)
+  const [duplaCampea, setDuplaCampea] = useState<DuplaComJogadores | null>(null)
+  const [duplaVice, setDuplaVice] = useState<DuplaComJogadores | null>(null)
   
   const fetchData = async () => {
     try {
@@ -51,7 +55,7 @@ export default function EdicaoDetalhesPage() {
       setEdicao(edicaoData)
       setInscritosCount(inscritosData.length)
       
-      // Buscar duplas se status for chaveamento ou posterior
+      // Buscar duplas e partidas se status for chaveamento, em_andamento ou finalizada (historico)
       if (edicaoData.status === 'chaveamento' || edicaoData.status === 'em_andamento' || edicaoData.status === 'finalizada') {
         await fetchDuplas()
         await fetchPartidas()
@@ -312,6 +316,33 @@ export default function EdicaoDetalhesPage() {
     }
   }
   
+  const handleEncerrarCampeonato = async () => {
+    try {
+      const resultado = await encerrarEDistribuirPontos(edicaoId)
+      
+      toast.success(`🏆 CAMPEONATO FINALIZADO! 🎉\n\n🥇 Campeoes: ${duplaCampea?.nome_dupla}!\n📊 Pontos distribuidos! Veja o ranking atualizado.`)
+      
+      setModalEncerrarOpen(false)
+      fetchData() // Atualizar status
+    } catch (error: any) {
+      toast.error('Erro: ' + error.message)
+    }
+  }
+  
+  // Verificar se final foi concluida
+  useEffect(() => {
+    if (partidas.length > 0) {
+      const final = partidas.find(p => p.fase === 'final')
+      if (final?.vencedor_id) {
+        setFinalConcluida(true)
+        setDuplaCampea(final.vencedor!)
+        
+        const vice = final.dupla1_id === final.vencedor_id ? final.dupla2! : final.dupla1!
+        setDuplaVice(vice)
+      }
+    }
+  }, [partidas])
+  
   useEffect(() => {
     fetchData()
   }, [edicaoId])
@@ -333,8 +364,6 @@ export default function EdicaoDetalhesPage() {
   
   return (
     <div>
-      {edicao.status === 'em_andamento' && <BannerEmAndamento />}
-      
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-4">
           <h2 className="text-3xl">{edicao.nome}</h2>
@@ -345,6 +374,78 @@ export default function EdicaoDetalhesPage() {
         </p>
       </div>
       
+      {/* Card do Campeao - PRIMEIRO quando final concluida (em andamento OU finalizado) */}
+      {(edicao.status === 'em_andamento' || edicao.status === 'finalizada') && finalConcluida && duplaCampea && (
+        <div className="mb-6">
+          <div className="relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-ouro via-yellow-400 to-ouro opacity-20 animate-pulse" />
+            
+            <div className="relative bg-gradient-to-br from-ouro to-yellow-600 p-4 rounded-lg text-center border-2 border-ouro">
+              <div className="text-4xl mb-2">🏆</div>
+              <h3 className="text-xl font-bold text-cinza-escuro mb-1">CAMPEOES!</h3>
+              <p className="text-lg font-bold text-white mb-3">{duplaCampea.nome_dupla}</p>
+              
+              <div className="bg-white bg-opacity-90 rounded-lg p-3 text-cinza-escuro mb-3">
+                <div className="flex justify-around text-sm">
+                  <div>
+                    <p className="font-semibold">{duplaCampea.jogador1?.nome}</p>
+                    <p className="text-xs opacity-70">{duplaCampea.jogador1?.setor}</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold">{duplaCampea.jogador2?.nome}</p>
+                    <p className="text-xs opacity-70">{duplaCampea.jogador2?.setor}</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Botao de encerrar so aparece se ainda nao foi finalizado */}
+              {edicao.status === 'em_andamento' && (
+                <button
+                  onClick={() => setModalEncerrarOpen(true)}
+                  className="bg-gradient-to-r from-verde-medio to-verde-claro text-white px-6 py-2 rounded-lg text-sm font-bold hover:scale-105 transition-transform w-full"
+                >
+                  🏆 Encerrar Campeonato e Distribuir Pontos
+                </button>
+              )}
+              
+              {/* Badge de finalizado dentro do card do campeao */}
+              {edicao.status === 'finalizada' && (
+                <div className="bg-white bg-opacity-90 p-2 rounded-lg">
+                  <p className="text-xs font-semibold text-verde-medio">✅ Campeonato Finalizado - Pontos Distribuídos</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Bracket - SEGUNDO quando em andamento OU finalizado */}
+      {(edicao.status === 'em_andamento' || edicao.status === 'finalizada') && partidas.length > 0 && (
+        <div className="mb-6">
+          {byes.length > 0 && (
+            <div className="bg-azul-info bg-opacity-20 border-2 border-azul-info p-4 rounded-lg mb-6">
+              <p className="font-semibold">ℹ️ Duplas com BYE (passam direto):</p>
+              <p className="text-sm">{byes.map(b => b.dupla?.nome_dupla).join(', ')}</p>
+            </div>
+          )}
+          
+          <Bracket 
+            partidas={partidas} 
+            onPartidaClick={handlePartidaClick}
+            onPartidaEdit={handleEditarPartida}
+            statusEdicao={edicao.status}
+          />
+        </div>
+      )}
+      
+      {/* Progresso das Fases - TERCEIRO quando em andamento OU finalizado */}
+      {(edicao.status === 'em_andamento' || edicao.status === 'finalizada') && partidas.length > 0 && (
+        <div className="mb-6">
+          <ProgressoFases partidas={partidas} />
+        </div>
+      )}
+      
+      {/* Informacoes Gerais - QUARTO */}
       <div className="grid md:grid-cols-2 gap-6">
         <div className="card-base">
           <h3 className="text-xl mb-4">📊 Informacoes</h3>
@@ -384,8 +485,8 @@ export default function EdicaoDetalhesPage() {
         </div>
       </div>
       
-      {/* Secao de Duplas - apenas se status = chaveamento ou em_andamento */}
-      {(edicao.status === 'chaveamento' || edicao.status === 'em_andamento') && (
+      {/* Secao de Duplas - se status = chaveamento, em_andamento ou finalizada (historico) */}
+      {(edicao.status === 'chaveamento' || edicao.status === 'em_andamento' || edicao.status === 'finalizada') && (
         <div className="mt-8">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-2xl">👥 Duplas Formadas ({duplas.length})</h3>
@@ -444,8 +545,8 @@ export default function EdicaoDetalhesPage() {
         </div>
       )}
       
-      {/* Secao de Chaveamento */}
-      {(edicao.status === 'chaveamento' || edicao.status === 'em_andamento') && (
+      {/* Secao de Chaveamento - apenas para status CHAVEAMENTO (preparacao) */}
+      {edicao.status === 'chaveamento' && (
         <div className="mt-8">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-2xl">🎯 Chaveamento</h3>
@@ -469,10 +570,6 @@ export default function EdicaoDetalhesPage() {
             </div>
           ) : (
             <>
-              {edicao.status === 'em_andamento' && partidas.length > 0 && (
-                <ProgressoFases partidas={partidas} />
-              )}
-              
               <Bracket 
                 partidas={partidas} 
                 onPartidaClick={handlePartidaClick}
@@ -481,22 +578,20 @@ export default function EdicaoDetalhesPage() {
               />
               
               {/* Botao de iniciar campeonato */}
-              {edicao.status === 'chaveamento' && partidas.length > 0 && (
-                <div className="mt-8">
-                  <div className="bg-gradient-to-r from-verde-medio to-verde-claro p-6 rounded-xl text-center">
-                    <h3 className="text-2xl font-bold mb-3">🎯 Pronto para Comecar?</h3>
-                    <p className="text-sm mb-4 opacity-90">
-                      Revise o chaveamento e clique abaixo para iniciar o campeonato
-                    </p>
-                    <button
-                      onClick={() => setModalIniciarOpen(true)}
-                      className="bg-white text-verde-mesa px-8 py-3 rounded-xl font-bold hover:scale-105 transition-transform"
-                    >
-                      🎯 Iniciar Campeonato
-                    </button>
-                  </div>
+              <div className="mt-8">
+                <div className="bg-gradient-to-r from-verde-medio to-verde-claro p-6 rounded-xl text-center">
+                  <h3 className="text-2xl font-bold mb-3">🎯 Pronto para Comecar?</h3>
+                  <p className="text-sm mb-4 opacity-90">
+                    Revise o chaveamento e clique abaixo para iniciar o campeonato
+                  </p>
+                  <button
+                    onClick={() => setModalIniciarOpen(true)}
+                    className="bg-white text-verde-mesa px-8 py-3 rounded-xl font-bold hover:scale-105 transition-transform"
+                  >
+                    🎯 Iniciar Campeonato
+                  </button>
                 </div>
-              )}
+              </div>
             </>
           )}
         </div>
@@ -555,7 +650,19 @@ export default function EdicaoDetalhesPage() {
           partida={partidaSelecionada}
         />
       )}
+      
+      {duplaCampea && duplaVice && (
+        <EncerrarCampeonatoModal
+          isOpen={modalEncerrarOpen}
+          onClose={() => setModalEncerrarOpen(false)}
+          onConfirm={handleEncerrarCampeonato}
+          duplaCampea={duplaCampea}
+          duplaVice={duplaVice}
+          numDemaisParticipantes={(inscritosCount || 0) - 4}
+        />
+      )}
     </div>
   )
 }
+
 

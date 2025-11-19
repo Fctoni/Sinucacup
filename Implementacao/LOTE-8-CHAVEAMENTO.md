@@ -393,3 +393,231 @@ const handleGerarChaveamento = async () => {
 ## Proxima Etapa
 ➡️ LOTE 9: Inicio do Campeonato e Travas
 
+---
+
+## MELHORIAS VISUAIS DO BRACKET (Implementado posteriormente)
+
+### Problema Identificado
+O bracket visual inicial estava funcional, mas não tinha o visual de "Copa do Mundo" com linhas conectoras profissionais. As linhas não estavam perfeitamente alinhadas com os centros dos cards de partidas.
+
+### Solução Implementada
+
+#### 1. Sistema de Medição Real com Refs
+
+**Modificado `PartidaCard.tsx`:**
+- Adicionado suporte para `innerRef` como prop
+- Ref aplicado diretamente na div branca principal (`bg-white border-2 rounded-lg`)
+- Também aplicado no card BYE (`bg-blue-50 border-2 border-blue-300`)
+
+```typescript
+type Props = {
+  partida: PartidaComDuplas
+  onClick?: () => void
+  onEdit?: () => void
+  statusEdicao?: string
+  innerRef?: React.Ref<HTMLDivElement>  // ← NOVO
+}
+
+export default function PartidaCard({ partida, onClick, onEdit, statusEdicao, innerRef }: Props) {
+  // ... código existente ...
+  
+  // Card de BYE com ref
+  if (isBye) {
+    return (
+      <div className="relative">
+        <div ref={innerRef} className="bg-blue-50 border-2 border-blue-300 rounded-lg overflow-hidden shadow-md">
+          {/* ... conteúdo ... */}
+        </div>
+      </div>
+    )
+  }
+  
+  // Card normal com ref
+  return (
+    <div className="relative">
+      {/* ... botões ... */}
+      <div
+        ref={innerRef}  // ← REF NA DIV BRANCA
+        onClick={handleClick}
+        className="bg-white border-2 rounded-lg overflow-hidden transition-all shadow-md"
+      >
+        {/* ... conteúdo ... */}
+      </div>
+    </div>
+  )
+}
+```
+
+#### 2. Bracket com Linhas SVG Dinâmicas
+
+**Modificado `Bracket.tsx`:**
+
+**A) Sistema de Medição Real:**
+```typescript
+// Refs para MEDIR as posições reais
+const cardRefs = useRef<Record<string, HTMLDivElement | null>>({})
+const containerRef = useRef<HTMLDivElement | null>(null)
+const [cardPositions, setCardPositions] = useState<Record<string, CardPosition>>({})
+
+// Altura estimada dos cards (APENAS para posicionamento inicial)
+const CARD_HEIGHT = 120
+const SPACING = 40
+
+// Calcular posição ESTIMADA do CENTRO (para posicionamento inicial)
+const calcularCentroY = (faseIndex: number, partidaIndex: number): number => {
+  if (faseIndex === 0) {
+    return partidaIndex * (CARD_HEIGHT + SPACING) + (CARD_HEIGHT / 2)
+  }
+  
+  const faseAnterior = fasesPresentes[faseIndex - 1]
+  const partidasFaseAnterior = partidasPorFase[faseAnterior]
+  
+  const card1Index = partidaIndex * 2
+  const card2Index = partidaIndex * 2 + 1
+  
+  const centro1 = calcularCentroY(faseIndex - 1, card1Index)
+  const centro2 = card2Index < partidasFaseAnterior.length 
+    ? calcularCentroY(faseIndex - 1, card2Index)
+    : centro1
+  
+  return (centro1 + centro2) / 2
+}
+
+// MEDIR as posições REAIS após render
+useEffect(() => {
+  const measurePositions = () => {
+    if (!containerRef.current) return
+    
+    const positions: Record<string, CardPosition> = {}
+    const containerRect = containerRef.current.getBoundingClientRect()
+    
+    Object.entries(cardRefs.current).forEach(([id, element]) => {
+      if (element) {
+        const rect = element.getBoundingClientRect()
+        
+        // Posições REAIS medidas
+        positions[id] = {
+          top: rect.top - containerRect.top,
+          height: rect.height,
+          centerY: rect.top - containerRect.top + rect.height / 2
+        }
+      }
+    })
+    
+    setCardPositions(positions)
+  }
+  
+  const timer = setTimeout(measurePositions, 200)
+  window.addEventListener('resize', measurePositions)
+  
+  return () => {
+    clearTimeout(timer)
+    window.removeEventListener('resize', measurePositions)
+  }
+}, [partidas])
+```
+
+**B) Posicionamento Absoluto com Média dos Centros:**
+```typescript
+// Partidas posicionadas absolutamente
+<div className="relative z-10" style={{ minHeight: '800px', width: '240px' }}>
+  {partidasFase.map((partida, index) => {
+    const centroY = calcularCentroY(faseIndex, index)
+    const topPosition = centroY - (CARD_HEIGHT / 2)
+    
+    return (
+      <div 
+        key={partida.id}
+        className="absolute w-full"
+        style={{ top: `${topPosition}px` }}
+      >
+        <PartidaCard
+          innerRef={(el) => { cardRefs.current[partida.id] = el }}
+          partida={partida}
+          onClick={() => onPartidaClick?.(partida)}
+          onEdit={() => onPartidaEdit?.(partida)}
+          statusEdicao={statusEdicao}
+        />
+      </div>
+    )
+  })}
+</div>
+```
+
+**C) Linhas SVG com Posições Medidas:**
+```typescript
+{/* Linhas conectoras - usando posições MEDIDAS REAIS */}
+{temProximaFase && Object.keys(cardPositions).length > 0 && (() => {
+  const proximaFase = fasesPresentes[faseIndex + 1]
+  const partidasProximaFase = partidasPorFase[proximaFase]
+  
+  return (
+    <div className="hidden md:block relative" style={{ width: '80px', minHeight: '800px' }}>
+      <svg width="80" height="2000" className="absolute left-0 top-0" style={{ overflow: 'visible' }}>
+        {Array.from({ length: Math.ceil(numPartidas / 2) }).map((_, pairIndex) => {
+          const partida1 = partidasFase[pairIndex * 2]
+          const partida2 = partidasFase[pairIndex * 2 + 1]
+          const partidaDestino = partidasProximaFase?.[pairIndex]
+          
+          // Usar posições MEDIDAS REAIS
+          const pos1 = partida1 ? cardPositions[partida1.id] : null
+          const pos2 = partida2 ? cardPositions[partida2.id] : null
+          const posDestino = partidaDestino ? cardPositions[partidaDestino.id] : null
+          
+          if (!pos1 || !posDestino) return null
+          
+          // Centro Y REAL medido
+          const y1 = pos1.centerY
+          const y2 = pos2 ? pos2.centerY : y1
+          const yDestino = posDestino.centerY
+          
+          return (
+            <g key={pairIndex}>
+              {/* Linha horizontal saindo do centro REAL da partida 1 */}
+              <line x1="0" y1={y1} x2="30" y2={y1} stroke="#9ca3af" strokeWidth="3" />
+              
+              {/* Linha horizontal saindo do centro REAL da partida 2 */}
+              {pos2 && <line x1="0" y1={y2} x2="30" y2={y2} stroke="#9ca3af" strokeWidth="3" />}
+              
+              {/* Linha vertical conectando os dois centros REAIS */}
+              {pos2 && <line x1="30" y1={y1} x2="30" y2={y2} stroke="#9ca3af" strokeWidth="3" />}
+              
+              {/* Linha horizontal indo para o centro REAL da partida de destino */}
+              <line x1="30" y1={yDestino} x2="80" y2={yDestino} stroke="#9ca3af" strokeWidth="3" />
+            </g>
+          )
+        })}
+      </svg>
+    </div>
+  )
+})()}
+```
+
+### Resultado Final
+
+✅ **Posicionamento dos Cards:**
+- Cards posicionados absolutamente com base na média dos centros das partidas anteriores
+- Semifinal fica exatamente no meio entre as duas quartas que a alimentam
+- Final fica exatamente no meio entre as duas semifinais
+
+✅ **Linhas Conectoras:**
+- Linhas SVG desenhadas usando `getBoundingClientRect()` para medir posições reais
+- Saem **exatamente do centro** da div branca de cada partida (ponto de partida)
+- Entram **exatamente no centro** da div branca da partida de destino (ponto de chegada)
+- Alinhamento perfeito independente do tamanho da tela
+- Responsivo com listener de resize
+
+✅ **Visual Profissional:**
+- Estilo "Copa do Mundo" com linhas conectoras limpas
+- Cores cinza médio (`#9ca3af`) para as linhas
+- Espessura de 3px para boa visibilidade
+- Alinhamento pixel-perfect
+
+### Aprendizados Importantes
+
+1. **Não "imaginar" posições**: Sempre medir posições reais com `getBoundingClientRect()` ao invés de usar valores estimados
+2. **Refs no elemento correto**: Aplicar ref na div que você realmente quer medir (não em wrappers)
+3. **Delay no useEffect**: Aguardar 200ms para garantir que tudo foi renderizado antes de medir
+4. **Listener de resize**: Recalcular posições quando a janela redimensionar
+5. **Position absolute**: Usar posicionamento absoluto para ter controle total sobre a posição Y de cada card
+

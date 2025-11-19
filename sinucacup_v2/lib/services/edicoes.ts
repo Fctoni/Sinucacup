@@ -82,3 +82,120 @@ export async function iniciarCampeonato(edicaoId: string) {
   return await updateEdicaoStatus(edicaoId, 'em_andamento')
 }
 
+export async function encerrarEDistribuirPontos(edicaoId: string) {
+  // Buscar a final
+  const { data: final, error: errorFinal } = await supabase
+    .from('partidas')
+    .select(`
+      *,
+      dupla1:duplas!partidas_dupla1_id_fkey(*),
+      dupla2:duplas!partidas_dupla2_id_fkey(*),
+      vencedor:duplas!partidas_vencedor_id_fkey(*)
+    `)
+    .eq('edicao_id', edicaoId)
+    .eq('fase', 'final')
+    .single()
+  
+  if (errorFinal) throw errorFinal
+  
+  if (!final.vencedor_id) {
+    throw new Error('Final ainda nao foi concluida')
+  }
+  
+  // Identificar campeao e vice
+  const duplasCampeaId = final.vencedor_id
+  const duplasViceId = final.dupla1_id === duplasCampeaId ? final.dupla2_id : final.dupla1_id
+  
+  // Buscar jogadores das duplas
+  const { data: duplaCampea } = await supabase
+    .from('duplas')
+    .select('jogador1_id, jogador2_id')
+    .eq('id', duplasCampeaId)
+    .single()
+  
+  const { data: duplaVice } = await supabase
+    .from('duplas')
+    .select('jogador1_id, jogador2_id')
+    .eq('id', duplasViceId)
+    .single()
+  
+  // Buscar todos inscritos
+  const { data: inscritos } = await supabase
+    .from('inscricoes')
+    .select('jogador_id')
+    .eq('edicao_id', edicaoId)
+  
+  const jogadoresCampeoes = [duplaCampea.jogador1_id, duplaCampea.jogador2_id]
+  const jogadoresVice = [duplaVice.jogador1_id, duplaVice.jogador2_id]
+  const todosInscritos = inscritos.map(i => i.jogador_id)
+  const jogadoresDemais = todosInscritos.filter(
+    id => !jogadoresCampeoes.includes(id) && !jogadoresVice.includes(id)
+  )
+  
+  // Atualizar jogadores campeoes
+  for (const jogadorId of jogadoresCampeoes) {
+    const { data: jogador } = await supabase
+      .from('jogadores')
+      .select('pontos_totais, vitorias, participacoes')
+      .eq('id', jogadorId)
+      .single()
+    
+    await supabase
+      .from('jogadores')
+      .update({
+        pontos_totais: jogador.pontos_totais + 10,
+        vitorias: jogador.vitorias + 1,
+        participacoes: jogador.participacoes + 1,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', jogadorId)
+  }
+  
+  // Atualizar jogadores vice
+  for (const jogadorId of jogadoresVice) {
+    const { data: jogador } = await supabase
+      .from('jogadores')
+      .select('pontos_totais, vitorias, participacoes')
+      .eq('id', jogadorId)
+      .single()
+    
+    await supabase
+      .from('jogadores')
+      .update({
+        pontos_totais: jogador.pontos_totais + 6,
+        participacoes: jogador.participacoes + 1,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', jogadorId)
+  }
+  
+  // Atualizar demais participantes
+  for (const jogadorId of jogadoresDemais) {
+    const { data: jogador } = await supabase
+      .from('jogadores')
+      .select('pontos_totais, vitorias, participacoes')
+      .eq('id', jogadorId)
+      .single()
+    
+    await supabase
+      .from('jogadores')
+      .update({
+        pontos_totais: jogador.pontos_totais + 2,
+        participacoes: jogador.participacoes + 1,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', jogadorId)
+  }
+  
+  // Atualizar status da edicao
+  await updateEdicaoStatus(edicaoId, 'finalizada')
+  
+  return {
+    campeoes: jogadoresCampeoes.length,
+    vice: jogadoresVice.length,
+    demais: jogadoresDemais.length,
+    duplasCampeaId,
+    duplasViceId,
+  }
+}
+

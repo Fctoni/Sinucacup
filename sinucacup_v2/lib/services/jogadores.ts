@@ -54,3 +54,42 @@ export async function updateJogador(id: string, updates: Partial<Jogador>) {
   return data as Jogador
 }
 
+export async function getRanking() {
+  const { data, error } = await supabase
+    .from('jogadores')
+    .select('*')
+    .eq('ativo', true)
+    .order('pontos_totais', { ascending: false })
+    .order('vitorias', { ascending: false })
+    .order('nome', { ascending: true })
+  
+  if (error) throw error
+  return data as Jogador[]
+}
+
+export async function getTop3() {
+  const ranking = await getRanking()
+  return ranking.slice(0, 3)
+}
+
+export async function getEstatisticasGerais() {
+  const { data: jogadores } = await supabase
+    .from('jogadores')
+    .select('pontos_totais, vitorias, participacoes')
+    .eq('ativo', true)
+  
+  if (!jogadores) return null
+  
+  const totalPontos = jogadores.reduce((sum, j) => sum + j.pontos_totais, 0)
+  const totalVitorias = jogadores.reduce((sum, j) => sum + j.vitorias, 0)
+  const totalParticipacoes = jogadores.reduce((sum, j) => sum + j.participacoes, 0)
+  const mediaParticipacoes = jogadores.length > 0 ? totalParticipacoes / jogadores.length : 0
+  
+  return {
+    totalJogadores: jogadores.length,
+    totalPontos,
+    totalVitorias,
+    mediaParticipacoes: Math.round(mediaParticipacoes * 10) / 10,
+  }
+}
+

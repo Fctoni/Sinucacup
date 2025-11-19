@@ -393,3 +393,41 @@ const handleEncerrarCampeonato = async () => {
 ## Proxima Etapa
 ➡️ LOTE 14: Ranking Global
 
+## Progresso de implementação: **preencher aqui abaixo sempre tudo que foi feito ao final do lote**
+
+✅ Tarefa 1: Função encerrarEDistribuirPontos criada em lib/services/edicoes.ts
+   - Busca e valida final concluída
+   - Identifica dupla campeã e vice automaticamente
+   - Distribui pontos: +10 campeões, +6 vice, +2 demais
+   - Atualiza vitórias e participações
+   - Muda status para "finalizada"
+
+✅ Tarefa 2: Componente CampeaoCard.tsx criado (depois removido a pedido do usuário)
+   - Card dourado com animações (pulse, bounce)
+   - Exibe troféu, nome da dupla e jogadores
+   - Indica +10 pontos para cada jogador
+
+✅ Tarefa 3: Componente EncerrarCampeonatoModal.tsx criado
+   - Modal de confirmação com preview da distribuição
+   - Cards coloridos: ouro (campeão), prata (vice), verde (demais)
+   - Aviso de irreversibilidade destacado
+   - Botões de confirmar/cancelar
+
+✅ Tarefa 4: Integração completa na página app/edicoes/[id]/page.tsx
+   - Import da função encerrarEDistribuirPontos
+   - States: modalEncerrarOpen, finalConcluida, duplaCampea, duplaVice
+   - Handler handleEncerrarCampeonato implementado
+   - useEffect para detectar final concluída automaticamente
+   - Card compacto inline dentro da div de chaveamento (logo após Bracket)
+   - Badge verde "Finalizado" quando status = finalizada
+   - Modal de confirmação integrado
+
+**AJUSTES SOLICITADOS:**
+✅ Card de campeões reduzido e movido para dentro da seção de chaveamento
+✅ Posicionado logo abaixo do componente Bracket
+✅ Tamanhos reduzidos: troféu (4xl), título (xl), padding (p-4)
+✅ Botão integrado no card (não separado)
+✅ Componente CampeaoCard.tsx removido (versão inline preferida)
+
+**LOTE 13 - COMPLETO! ✅**
+
