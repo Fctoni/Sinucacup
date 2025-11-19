@@ -171,4 +171,19 @@ Pagina simples com titulo e navegacao para testar setup.
 
 ## Progresso de implementação: **preencher aqui abaixo sempre tudo que foi feito ao final do lote**     
 
-O usuário (humano) as tarefas 1, 2 e 3
+✅ Tarefa 1: Projeto Next.js 14 inicializado (feito pelo usuário)
+✅ Tarefa 2: Dependências base instaladas (feito pelo usuário)
+✅ Tarefa 3: shadcn/ui configurado (feito pelo usuário)
+✅ Tarefa 4.1: Projeto Supabase criado (feito pelo usuário)
+✅ Tarefa 4.2: Credenciais obtidas via MCP e arquivos .env criados
+✅ Tarefa 4.3: Cliente Supabase criado (lib/supabase.ts)
+✅ Tarefa 5: Estrutura de pastas completa criada
+✅ Tarefa 6: .gitignore já protege .env.local
+✅ Tarefa 7: Tailwind CSS v4 configurado com cores do PRD + classes utilitárias
+✅ Tarefa 8: Página inicial criada + Layout com Header e Navigation
+
+**CORREÇÕES APLICADAS:**
+✅ Classes .badge corrigidas para Tailwind v4 (sem @apply aninhado)
+✅ Porta alterada para 3001 no package.json (porta 3000 em uso)
+
+**LOTE 0 - COMPLETO! ✅**

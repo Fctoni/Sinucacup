@@ -253,13 +253,13 @@ INSERT INTO jogadores (nome, setor, pontos_totais, vitorias, participacoes) VALU
 
 ## Checklist de Validacao
 
-- [ ] Todas as tabelas criadas no Supabase
-- [ ] Indices configurados
-- [ ] RLS ativado e politicas criadas
-- [ ] Types TypeScript criados
-- [ ] Testar query simples: `SELECT * FROM jogadores`
-- [ ] Testar insert simples em cada tabela
-- [ ] Seeds inseridos (opcional)
+- [x] Todas as tabelas criadas no Supabase
+- [x] Indices configurados
+- [x] RLS ativado e politicas criadas
+- [x] Types TypeScript criados
+- [x] Testar query simples: `SELECT * FROM jogadores`
+- [x] Testar insert simples em cada tabela
+- [x] Seeds inseridos (opcional)
 
 ## Entregaveis
 
@@ -271,4 +271,29 @@ INSERT INTO jogadores (nome, setor, pontos_totais, vitorias, participacoes) VALU
 
 ## Proxima Etapa
 ➡️ LOTE 2: UI Base e Design System
+
+## Progresso de implementação: **preencher aqui abaixo sempre tudo que foi feito ao final do lote**
+
+✅ Tabela jogadores criada com índices (pontos_totais DESC, ativo)
+✅ Tabela edicoes criada com índices (ano/numero DESC, status)
+✅ Tabela inscricoes criada com índices e constraint UNIQUE
+✅ Tabela duplas criada com índices e validação (jogador1 != jogador2)
+✅ Tabela partidas criada com índices (edicao, fase, vencedor)
+✅ Tabela byes_temporarios criada com índice e constraint UNIQUE
+✅ RLS ativado em todas as tabelas
+✅ Políticas de acesso público configuradas (sem autenticação)
+✅ Seeds inseridos: 8 jogadores de exemplo
+✅ Types TypeScript validados (types/index.ts)
+✅ Teste de conexão bem-sucedido (query SELECT funcionando)
+
+**Migrações Criadas:**
+1. criar_tabela_jogadores
+2. criar_tabela_edicoes
+3. criar_tabela_inscricoes
+4. criar_tabela_duplas
+5. criar_tabela_partidas
+6. criar_tabela_byes_temporarios
+7. configurar_rls_acesso_publico
+
+**LOTE 1 - COMPLETO! ✅**
 

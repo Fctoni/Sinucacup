@@ -41,6 +41,38 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  
+  /* Cores customizadas do PRD - TecnoHard Sinuca Cup */
+  --color-verde-mesa: #1a5c4a;
+  --color-verde-medio: #2d7a63;
+  --color-verde-claro: #3a9978;
+  --color-cinza-escuro: #1a1a1a;
+  --color-cinza-medio: #2d2d2d;
+  --color-cinza-card: #333333;
+  --color-texto-principal: #e0e0e0;
+  --color-texto-secundario: #b8b8b8;
+  --color-amarelo-destaque: #f4d03f;
+  --color-laranja-aviso: #ff6b35;
+  --color-azul-info: #3a5ba0;
+  --color-roxo-alternativo: #7b2d8e;
+  --color-vermelho-erro: #e74c3c;
+  --color-ouro: #ffd700;
+  --color-prata: #c0c0c0;
+  --color-bronze: #cd7f32;
+  
+  /* Animações customizadas */
+  --animate-slide-in-right: slide-in-right 0.3s ease-out;
+}
+
+@keyframes slide-in-right {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 :root {
@@ -117,6 +149,76 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-cinza-escuro text-texto-principal;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  h1 {
+    @apply text-4xl font-bold text-amarelo-destaque;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  
+  h2 {
+    @apply text-3xl font-bold text-amarelo-destaque;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  
+  h3 {
+    @apply text-2xl font-semibold text-amarelo-destaque;
+  }
+}
+
+@layer components {
+  .card-base {
+    @apply bg-cinza-card rounded-xl p-6 border-2 border-transparent;
+    @apply transition-all duration-300 hover:-translate-y-1 hover:border-amarelo-destaque;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  }
+  
+  .btn-primary {
+    @apply bg-gradient-to-r from-verde-mesa to-verde-medio text-white;
+    @apply px-6 py-3 rounded-xl font-semibold;
+    @apply transition-all duration-300 hover:-translate-y-1;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  }
+  
+  .btn-primary:hover {
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.4);
+  }
+  
+  .btn-secondary {
+    @apply bg-cinza-medio text-texto-principal border-2 border-verde-medio;
+    @apply px-6 py-3 rounded-xl font-semibold;
+    @apply transition-all duration-300 hover:bg-verde-medio;
+  }
+  
+  .btn-danger {
+    @apply bg-vermelho-erro text-white;
+    @apply px-6 py-3 rounded-xl font-semibold;
+    @apply transition-all duration-300 hover:bg-red-600;
+  }
+  
+  .badge {
+    @apply inline-block rounded-full px-4 py-1 text-sm font-semibold;
+  }
+  
+  .badge-inscricoes {
+    @apply inline-block rounded-full px-4 py-1 text-sm font-semibold;
+    @apply bg-azul-info text-white;
+  }
+  
+  .badge-chaveamento {
+    @apply inline-block rounded-full px-4 py-1 text-sm font-semibold;
+    @apply bg-roxo-alternativo text-white;
+  }
+  
+  .badge-andamento {
+    @apply inline-block rounded-full px-4 py-1 text-sm font-semibold;
+    @apply bg-laranja-aviso text-white;
+  }
+  
+  .badge-finalizada {
+    @apply inline-block rounded-full px-4 py-1 text-sm font-semibold;
+    @apply bg-verde-medio text-white;
   }
 }

@@ -388,14 +388,14 @@ theme: {
 
 ## Checklist de Validacao
 
-- [ ] Cores do PRD aplicadas no Tailwind
-- [ ] Header com logo e titulo
-- [ ] Navegacao funcionando entre paginas
-- [ ] Pagina inicial visual e informativa
-- [ ] Classes utilitarias (card-base, btn-primary) funcionando
-- [ ] Responsividade basica (mobile/desktop)
-- [ ] Sonner configurado no layout
-- [ ] Animacoes suaves
+- [x] Cores do PRD aplicadas no Tailwind
+- [x] Header com logo e titulo
+- [x] Navegacao funcionando entre paginas
+- [x] Pagina inicial visual e informativa
+- [x] Classes utilitarias (card-base, btn-primary) funcionando
+- [x] Responsividade basica (mobile/desktop)
+- [x] Sonner configurado no layout
+- [x] Animacoes suaves
 
 ## Entregaveis
 
@@ -409,3 +409,36 @@ theme: {
 ## Proxima Etapa
 ➡️ LOTE 3: Gestao de Jogadores
 
+## Progresso de implementação: **preencher aqui abaixo sempre tudo que foi feito ao final do lote**
+
+✅ **OBSERVAÇÃO:** A maioria das tarefas do Lote 2 já foram implementadas no Lote 0!
+
+✅ Tarefa 1: Cores do PRD configuradas no Tailwind CSS v4 (globals.css @theme) - JÁ FEITO NO LOTE 0
+✅ Tarefa 2: CSS Global com classes utilitárias criadas (.card-base, .btn-primary, etc) - JÁ FEITO NO LOTE 0
+✅ Tarefa 3: Componente Header criado (components/layout/Header.tsx) - JÁ FEITO NO LOTE 0
+✅ Tarefa 4: Componente Navigation criado (components/layout/Navigation.tsx) - JÁ FEITO NO LOTE 0
+✅ Tarefa 5: Sonner instalado e configurado - JÁ FEITO NO LOTE 0
+✅ Tarefa 6: Layout Principal atualizado (app/layout.tsx) - JÁ FEITO NO LOTE 0
+✅ Tarefa 7: Página Inicial criada (app/page.tsx) - JÁ FEITO NO LOTE 0
+✅ Tarefa 8: Páginas Placeholder criadas (jogadores, edicoes, chaveamento, ranking) - JÁ FEITO NO LOTE 0
+✅ Tarefa 9: Animações customizadas adicionadas (keyframes slide-in-right) - FEITO AGORA
+
+**Componentes Implementados:**
+- Header com logo 🎱 e título
+- Navigation com 5 páginas (Inicio, Jogadores, Edicoes, Chaveamento, Ranking)
+- Layout responsivo com container mx-auto
+- Sistema de notificações Sonner configurado
+
+**Classes CSS Utilitárias:**
+- .card-base (cards com hover effect)
+- .btn-primary, .btn-secondary, .btn-danger
+- .badge, .badge-inscricoes, .badge-chaveamento, .badge-andamento, .badge-finalizada
+
+**Design System:**
+- 16 cores customizadas (verde mesa, cinzas, amarelo, ranking, etc)
+- Tipografia com Segoe UI
+- Animações suaves (transitions 300ms)
+- Shadow effects (card, card-hover)
+
+**LOTE 2 - COMPLETO! ✅**
+(Na prática, 90% já estava pronto do Lote 0, apenas adicionamos animações customizadas)
