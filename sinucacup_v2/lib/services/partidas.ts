@@ -122,6 +122,7 @@ async function gerarChaveamentoComBye(edicaoId: string, duplas: any[]) {
   const fase = getFaseInicial(proxPotencia)
   const partidas = []
   
+  // Criar partidas normais (duplas que jogam)
   for (let i = 0; i < duplasQueJogam.length; i += 2) {
     const partida = {
       edicao_id: edicaoId,
@@ -131,6 +132,20 @@ async function gerarChaveamentoComBye(edicaoId: string, duplas: any[]) {
       vencedor_id: null,
       posicao: i / 2 + 1,
       is_bye: false,
+    }
+    partidas.push(partida)
+  }
+  
+  // Criar partidas de BYE (visiveis no chaveamento)
+  for (let i = 0; i < duplasComBye.length; i++) {
+    const partida = {
+      edicao_id: edicaoId,
+      fase,
+      dupla1_id: duplasComBye[i].id,
+      dupla2_id: null, // null indica BYE
+      vencedor_id: duplasComBye[i].id, // Ja vem com vencedor
+      posicao: Math.floor(duplasQueJogam.length / 2) + i + 1,
+      is_bye: true,
     }
     partidas.push(partida)
   }
@@ -190,7 +205,7 @@ export async function criarProximaFase(edicaoId: string, faseAtual: string) {
     return null
   }
   
-  // Buscar vencedores da fase atual
+  // Buscar vencedores da fase atual (incluindo BYEs que ja tem vencedor)
   const { data: partidasAtuais, error: errorPartidas } = await supabase
     .from('partidas')
     .select('vencedor_id, posicao')
@@ -202,37 +217,21 @@ export async function criarProximaFase(edicaoId: string, faseAtual: string) {
   
   const vencedores = partidasAtuais.map(p => p.vencedor_id).filter(Boolean)
   
-  // Verificar se ha byes para integrar
-  const { data: byes, error: errorByes } = await supabase
+  // Limpar byes temporarios (nao sao mais necessarios)
+  await supabase
     .from('byes_temporarios')
-    .select('dupla_id')
+    .delete()
     .eq('edicao_id', edicaoId)
-  
-  if (errorByes) throw errorByes
-  
-  let duplas = [...vencedores]
-  
-  // Se havia byes, integra-los agora na proxima fase
-  if (byes.length > 0) {
-    const duplasBye = byes.map(b => b.dupla_id)
-    duplas = [...duplasBye, ...vencedores]
-    
-    // Remover byes pois ja foram integrados
-    await supabase
-      .from('byes_temporarios')
-      .delete()
-      .eq('edicao_id', edicaoId)
-  }
   
   // Criar partidas da proxima fase
   const novasPartidas = []
   
-  for (let i = 0; i < duplas.length; i += 2) {
+  for (let i = 0; i < vencedores.length; i += 2) {
     const partida = {
       edicao_id: edicaoId,
       fase: proximaFase,
-      dupla1_id: duplas[i] || null,
-      dupla2_id: duplas[i + 1] || null,
+      dupla1_id: vencedores[i] || null,
+      dupla2_id: vencedores[i + 1] || null,
       vencedor_id: null,
       posicao: i / 2 + 1,
       is_bye: false,
