@@ -9,6 +9,7 @@ type Props = {
   duplaCampea: DuplaComJogadores
   duplaVice: DuplaComJogadores
   numDemaisParticipantes: number
+  isLoading?: boolean
 }
 
 export default function EncerrarCampeonatoModal({
@@ -18,6 +19,7 @@ export default function EncerrarCampeonatoModal({
   duplaCampea,
   duplaVice,
   numDemaisParticipantes,
+  isLoading = false,
 }: Props) {
   if (!isOpen) return null
   
@@ -81,10 +83,20 @@ export default function EncerrarCampeonatoModal({
         </div>
         
         <div className="flex gap-4">
-          <button onClick={onConfirm} className="btn-primary flex-1 text-lg py-4">
-            🏆 Confirmar Encerramento
+          <button 
+            onClick={onConfirm} 
+            disabled={isLoading}
+            className={`btn-primary flex-1 text-lg py-4 transition-all ${
+              isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'
+            }`}
+          >
+            {isLoading ? '⏳ Encerrando e Distribuindo Pontos...' : '🏆 Confirmar Encerramento'}
           </button>
-          <button onClick={onClose} className="btn-secondary flex-1">
+          <button 
+            onClick={onClose} 
+            disabled={isLoading}
+            className={`btn-secondary flex-1 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
             ❌ Cancelar
           </button>
         </div>

@@ -31,8 +31,12 @@ export default function NovoJogadorModal({ isOpen, onClose, onSuccess }: Props) 
       // Validar com Zod
       const validated = jogadorSchema.parse(formData)
       
-      // Criar jogador
-      await createJogador(validated)
+      // Criar jogador (converter undefined para null)
+      await createJogador({
+        nome: validated.nome,
+        setor: validated.setor,
+        foto_url: validated.foto_url || null
+      })
       
       // Resetar form
       setFormData({ nome: '', setor: '', foto_url: '' })

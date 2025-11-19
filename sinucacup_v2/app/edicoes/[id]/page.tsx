@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
-import { getEdicao, updateEdicaoStatus, iniciarCampeonato, encerrarEDistribuirPontos } from '@/lib/services/edicoes'
+import { getEdicao, updateEdicaoStatus, iniciarCampeonato, encerrarEDistribuirPontosAtomico } from '@/lib/services/edicoes'
 import { getInscricoesPorEdicao } from '@/lib/services/inscricoes'
 import { getDuplasPorEdicao, gerarDuplasAutomaticas, deleteDupla, validarExclusaoDupla, trocarJogadoresEntreDuplas, reordenarDuplas, reorganizarPosicoesDuplas } from '@/lib/services/duplas'
 import { gerarChaveamento, getPartidasPorEdicao, getByesDaEdicao, registrarVencedor, validarRegistroVencedor, editarResultado } from '@/lib/services/partidas'
@@ -43,6 +43,7 @@ export default function EdicaoDetalhesPage() {
   const [finalConcluida, setFinalConcluida] = useState(false)
   const [duplaCampea, setDuplaCampea] = useState<DuplaComJogadores | null>(null)
   const [duplaVice, setDuplaVice] = useState<DuplaComJogadores | null>(null)
+  const [encerrandoCampeonato, setEncerrandoCampeonato] = useState(false)
   
   const fetchData = async () => {
     try {
@@ -317,8 +318,17 @@ export default function EdicaoDetalhesPage() {
   }
   
   const handleEncerrarCampeonato = async () => {
+    // 🛡️ CAMADA 1: Proteção contra múltiplos cliques
+    if (encerrandoCampeonato) {
+      console.log('⚠️ Encerramento já em andamento, ignorando clique')
+      return
+    }
+    
+    setEncerrandoCampeonato(true)
+    
     try {
-      const resultado = await encerrarEDistribuirPontos(edicaoId)
+      // 🛡️ CAMADA 4: Usando função atômica SQL (100% segura contra race conditions)
+      const resultado = await encerrarEDistribuirPontosAtomico(edicaoId)
       
       toast.success(`🏆 CAMPEONATO FINALIZADO! 🎉\n\n🥇 Campeoes: ${duplaCampea?.nome_dupla}!\n📊 Pontos distribuidos! Veja o ranking atualizado.`)
       
@@ -326,6 +336,8 @@ export default function EdicaoDetalhesPage() {
       fetchData() // Atualizar status
     } catch (error: any) {
       toast.error('Erro: ' + error.message)
+    } finally {
+      setEncerrandoCampeonato(false)
     }
   }
   
@@ -659,6 +671,7 @@ export default function EdicaoDetalhesPage() {
           duplaCampea={duplaCampea}
           duplaVice={duplaVice}
           numDemaisParticipantes={(inscritosCount || 0) - 4}
+          isLoading={encerrandoCampeonato}
         />
       )}
     </div>

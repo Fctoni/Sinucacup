@@ -82,7 +82,40 @@ export async function iniciarCampeonato(edicaoId: string) {
   return await updateEdicaoStatus(edicaoId, 'em_andamento')
 }
 
+// 🛡️ CAMADA 4: Função que usa transação atômica SQL (100% segura)
+export async function encerrarEDistribuirPontosAtomico(edicaoId: string) {
+  try {
+    const { data, error } = await supabase.rpc('encerrar_campeonato_atomico', {
+      p_edicao_id: edicaoId
+    })
+    
+    if (error) throw error
+    
+    return data
+  } catch (error: any) {
+    // Se erro contém "já foi finalizado", converter para mensagem amigável
+    if (error.message?.includes('ja foi finalizado')) {
+      throw new Error('Campeonato ja foi finalizado anteriormente!')
+    }
+    throw error
+  }
+}
+
+// Função original com validação (mantida como backup)
 export async function encerrarEDistribuirPontos(edicaoId: string) {
+  // 🛡️ CAMADA 3: Validação de status para prevenir execuções duplicadas
+  const { data: edicaoAtual, error: errorEdicao } = await supabase
+    .from('edicoes')
+    .select('status')
+    .eq('id', edicaoId)
+    .single()
+  
+  if (errorEdicao) throw errorEdicao
+  
+  if (edicaoAtual?.status === 'finalizada') {
+    throw new Error('Campeonato ja foi finalizado anteriormente!')
+  }
+  
   // Buscar a final
   const { data: final, error: errorFinal } = await supabase
     .from('partidas')
@@ -119,11 +152,19 @@ export async function encerrarEDistribuirPontos(edicaoId: string) {
     .eq('id', duplasViceId)
     .single()
   
+  if (!duplaCampea || !duplaVice) {
+    throw new Error('Erro ao buscar dados das duplas finalistas')
+  }
+  
   // Buscar todos inscritos
   const { data: inscritos } = await supabase
     .from('inscricoes')
     .select('jogador_id')
     .eq('edicao_id', edicaoId)
+  
+  if (!inscritos) {
+    throw new Error('Erro ao buscar inscritos da edicao')
+  }
   
   const jogadoresCampeoes = [duplaCampea.jogador1_id, duplaCampea.jogador2_id]
   const jogadoresVice = [duplaVice.jogador1_id, duplaVice.jogador2_id]
@@ -139,6 +180,8 @@ export async function encerrarEDistribuirPontos(edicaoId: string) {
       .select('pontos_totais, vitorias, participacoes')
       .eq('id', jogadorId)
       .single()
+    
+    if (!jogador) continue
     
     await supabase
       .from('jogadores')
@@ -159,6 +202,8 @@ export async function encerrarEDistribuirPontos(edicaoId: string) {
       .eq('id', jogadorId)
       .single()
     
+    if (!jogador) continue
+    
     await supabase
       .from('jogadores')
       .update({
@@ -176,6 +221,8 @@ export async function encerrarEDistribuirPontos(edicaoId: string) {
       .select('pontos_totais, vitorias, participacoes')
       .eq('id', jogadorId)
       .single()
+    
+    if (!jogador) continue
     
     await supabase
       .from('jogadores')

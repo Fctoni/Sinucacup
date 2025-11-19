@@ -50,7 +50,11 @@ function getFaseInicial(numDuplas: number): string {
   return 'oitavas'
 }
 
-export async function gerarChaveamento(edicaoId: string) {
+export async function gerarChaveamento(edicaoId: string): Promise<{
+  byes: string[]
+  fase: string
+  numByes: number
+}> {
   // Buscar duplas
   const duplas = await getDuplasPorEdicao(edicaoId)
   
@@ -96,7 +100,7 @@ async function gerarChaveamentoSimples(edicaoId: string, duplas: any[]) {
   const { error } = await supabase.from('partidas').insert(partidas)
   if (error) throw error
   
-  return { byes: [], fase }
+  return { byes: [], fase, numByes: 0 }
 }
 
 async function gerarChaveamentoComBye(edicaoId: string, duplas: any[]) {
