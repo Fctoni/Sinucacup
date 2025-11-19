@@ -348,15 +348,15 @@ export default function EdicaoDetalhesPage() {
 
 ## Checklist de Validacao
 
-- [ ] Modal de inscricoes abrindo
-- [ ] Paineis lado a lado (disponiveis vs inscritos)
-- [ ] Botao de inscrever funcionando
-- [ ] Jogador sendo transferido entre paineis
-- [ ] Contador de inscritos atualizando
-- [ ] Nao permite duplicar inscricao
-- [ ] Apenas jogadores ativos aparecem
-- [ ] Pagina de detalhes mostrando informacoes
-- [ ] Botao "Gerenciar Inscricoes" apenas em status correto
+- [x] Modal de inscricoes abrindo
+- [x] Paineis lado a lado (disponiveis vs inscritos)
+- [x] Botao de inscrever funcionando
+- [x] Jogador sendo transferido entre paineis
+- [x] Contador de inscritos atualizando
+- [x] Nao permite duplicar inscricao
+- [x] Apenas jogadores ativos aparecem
+- [x] Pagina de detalhes mostrando informacoes
+- [x] Botao "Gerenciar Inscricoes" apenas em status correto
 
 ## Entregaveis
 
@@ -369,4 +369,82 @@ export default function EdicaoDetalhesPage() {
 
 ## Proxima Etapa
 ➡️ LOTE 6: Formacao de Duplas - Parte 1
+
+## Progresso de implementação: **preencher aqui abaixo sempre tudo que foi feito ao final do lote**
+
+✅ Serviço de inscrições criado (lib/services/inscricoes.ts)
+  - getInscricoesPorEdicao(edicaoId): Busca inscritos com join de jogador
+  - inscreverJogador(edicaoId, jogadorId): Cria inscrição
+  - removerInscricao(edicaoId, jogadorId): Remove inscrição (implementado mas não usado ainda)
+  - getJogadoresDisponiveis(edicaoId): Retorna jogadores ativos não inscritos
+    * Busca todos jogadores ativos
+    * Busca inscritos da edição
+    * Filtra removendo inscritos dos disponíveis
+
+✅ Modal GerenciarInscricoesModal criado (components/inscricoes/GerenciarInscricoesModal.tsx)
+  - Layout de 2 painéis lado a lado (grid md:grid-cols-2)
+  - Painel Esquerdo: Jogadores Disponíveis
+    * Lista ordenada por pontuação
+    * Botão "➕ Inscrever" para cada jogador
+    * Contador dinâmico de disponíveis
+    * Empty state quando todos inscritos
+  - Painel Direito: Jogadores Inscritos
+    * Fundo verde com borda
+    * Contador dinâmico de inscritos
+    * Empty state quando nenhum inscrito
+  - Informações exibidas por jogador:
+    * Nome (bold)
+    * Setor • Pontuação
+  - Modal responsivo com max-height e scroll
+  - Botão X para fechar no header
+  - Botão "Concluir" no footer
+  - Recarregamento automático após inscrição
+
+✅ Página de detalhes da edição criada (app/edicoes/[id]/page.tsx)
+  - Rota dinâmica: /edicoes/[id]
+  - useParams() para capturar ID da URL
+  - Header com título e status badge
+  - Informações da edição:
+    * Nome completo
+    * Número e ano
+    * Data formatada em português
+  - Grid 2 colunas (md:grid-cols-2):
+    * Card Informações: Status + Contador de inscritos
+    * Card Ações: Botões contextuais por status
+  - Botões condicionais por status:
+    * "Gerenciar Inscrições" (status = inscricoes_abertas)
+    * "Iniciar Chaveamento" (status = inscricoes_abertas + mín. 4 inscritos)
+    * "Gerenciar Duplas" (status = chaveamento)
+  - Estado de loading
+  - Tratamento de edição não encontrada
+  - Atualização do contador após fechar modal
+  - Integração com GerenciarInscricoesModal
+
+**Arquivos Criados:**
+- lib/services/inscricoes.ts (70 linhas)
+- components/inscricoes/GerenciarInscricoesModal.tsx (142 linhas)
+- app/edicoes/[id]/page.tsx (117 linhas)
+
+**Funcionalidades Implementadas:**
+- ✅ Sistema de inscrições com 2 painéis
+- ✅ Inscrição de jogadores com um clique
+- ✅ Filtragem automática de jogadores já inscritos
+- ✅ Apenas jogadores ativos aparecem
+- ✅ Contador de inscritos em tempo real
+- ✅ Página de detalhes com rotas dinâmicas
+- ✅ Botões contextuais baseados no status
+- ✅ Validação de número mínimo de inscritos (4)
+- ✅ Loading states
+- ✅ Empty states em ambos os painéis
+- ✅ Modal responsivo com scroll
+- ✅ Formatação de data em português
+
+**Integrações Realizadas:**
+- ✅ Link do EdicaoCard para página de detalhes
+- ✅ Comunicação entre modal e página (atualização de contador)
+- ✅ Uso de componentes compartilhados (StatusBadge)
+
+**LOTE 5 - COMPLETO! ✅**
+
+**🎉 FASE 2 (LOTES 3-5) - COMPLETA! 🎉**
 

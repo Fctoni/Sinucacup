@@ -417,15 +417,15 @@ npm install date-fns
 
 ## Checklist de Validacao
 
-- [ ] Listagem de edicoes funcionando
-- [ ] Cards com badges de status corretas
-- [ ] Modal de criacao funcionando
-- [ ] Numero de edicao sugerido automaticamente
-- [ ] Validacao de formulario
-- [ ] Data formatada em pt-BR
-- [ ] Notificacoes (toast) do Sonner funcionando
-- [ ] Grid responsivo
-- [ ] Link para detalhes (mesmo sem pagina ainda)
+- [x] Listagem de edicoes funcionando
+- [x] Cards com badges de status corretas
+- [x] Modal de criacao funcionando
+- [x] Numero de edicao sugerido automaticamente
+- [x] Validacao de formulario
+- [x] Data formatada em pt-BR
+- [x] Notificacoes (toast) do Sonner funcionando
+- [x] Grid responsivo
+- [x] Link para detalhes (pagina criada no Lote 5)
 
 ## Entregaveis
 
@@ -437,4 +437,78 @@ npm install date-fns
 
 ## Proxima Etapa
 ➡️ LOTE 5: Sistema de Inscricoes
+
+## Progresso de implementação: **preencher aqui abaixo sempre tudo que foi feito ao final do lote**
+
+✅ Serviço de edições criado (lib/services/edicoes.ts)
+  - getEdicoes(): Busca todas ordenadas por ano/número (decrescente)
+  - getEdicao(id): Busca por ID
+  - createEdicao(): Cria nova com status inicial "inscricoes_abertas"
+  - updateEdicaoStatus(): Atualiza status e timestamp
+  - getProximoNumeroEdicao(ano): Calcula próximo número para o ano
+
+✅ Schema de validação Zod criado (lib/validations/edicao.ts)
+  - Nome: mínimo 5 caracteres, máximo 255
+  - Número: inteiro positivo
+  - Ano: entre 2020 e 2100
+  - Data início: validação de formato de data
+
+✅ Componente StatusBadge criado (components/edicoes/StatusBadge.tsx)
+  - Badge colorido por status:
+    * Inscrições Abertas: azul (badge-inscricoes)
+    * Chaveamento: roxo (badge-chaveamento)
+    * Em Andamento: laranja (badge-andamento)
+    * Finalizada: verde (badge-finalizada)
+  - Ícones emoji por status
+
+✅ Componente EdicaoCard criado (components/edicoes/EdicaoCard.tsx)
+  - Layout com status badge no canto
+  - Formatação de data em português (date-fns + pt-BR locale)
+  - Link para página de detalhes
+  - Estilos do Design System aplicados
+
+✅ Modal NovaEdicaoModal criado (components/edicoes/NovaEdicaoModal.tsx)
+  - Formulário com 4 campos (nome*, número*, ano*, data_inicio*)
+  - Sugestão automática do próximo número (useEffect)
+  - Validação em tempo real com Zod
+  - Mensagens de erro específicas por campo
+  - Estados de loading durante salvamento
+  - Reset do formulário após sucesso
+  - Grid 2 colunas para número e ano
+
+✅ Página de edições atualizada (app/edicoes/page.tsx)
+  - Estado de loading com mensagem
+  - Botão "Nova Edição" no header
+  - Grid responsivo: 1 col (mobile) → 3 cols (desktop)
+  - Empty state quando não há edições
+  - Integração com toast (Sonner) para feedbacks
+  - Recarregamento automático após criação
+
+**Arquivos Criados:**
+- lib/services/edicoes.ts (67 linhas)
+- lib/validations/edicao.ts (18 linhas)
+- components/edicoes/StatusBadge.tsx (35 linhas)
+- components/edicoes/EdicaoCard.tsx (40 linhas)
+- components/edicoes/NovaEdicaoModal.tsx (145 linhas)
+
+**Arquivos Modificados:**
+- app/edicoes/page.tsx (68 linhas)
+
+**Funcionalidades Implementadas:**
+- ✅ Listagem de edições ordenadas por ano/número
+- ✅ Criação de novas edições
+- ✅ Sistema de status com badges coloridos
+- ✅ Sugestão automática do próximo número
+- ✅ Formatação de datas em português
+- ✅ Validação de formulários
+- ✅ Grid responsivo
+- ✅ Toast notifications
+- ✅ Loading states
+- ✅ Empty states
+- ✅ Link para página de detalhes
+
+**Dependência Instalada:**
+- date-fns (já instalado no setup)
+
+**LOTE 4 - COMPLETO! ✅**
 

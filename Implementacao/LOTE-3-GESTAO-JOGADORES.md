@@ -358,16 +358,16 @@ export default function JogadoresPage() {
 
 ## Checklist de Validacao
 
-- [ ] Listagem de jogadores funcionando
-- [ ] Cards exibindo informacoes corretas
-- [ ] Modal de cadastro abrindo/fechando
-- [ ] Validacao de campos com Zod
-- [ ] Mensagens de erro aparecendo
-- [ ] Jogador sendo inserido no banco
-- [ ] Notificacoes (toast) do Sonner funcionando
-- [ ] Grid responsivo (1 col mobile, 4 cols desktop)
-- [ ] Avatar padrao para jogadores sem foto
-- [ ] Estatisticas zeradas em novos jogadores
+- [x] Listagem de jogadores funcionando
+- [x] Cards exibindo informacoes corretas
+- [x] Modal de cadastro abrindo/fechando
+- [x] Validacao de campos com Zod
+- [x] Mensagens de erro aparecendo
+- [x] Jogador sendo inserido no banco
+- [x] Notificacoes (toast) do Sonner funcionando
+- [x] Grid responsivo (1 col mobile, 4 cols desktop)
+- [x] Avatar padrao para jogadores sem foto
+- [x] Estatisticas zeradas em novos jogadores
 
 ## Entregaveis
 
@@ -382,4 +382,98 @@ export default function JogadoresPage() {
 
 ## Proxima Etapa
 ➡️ LOTE 4: Gestao de Edicoes
+
+## Progresso de implementação: **preencher aqui abaixo sempre tudo que foi feito ao final do lote**
+
+✅ Serviço de jogadores criado (lib/services/jogadores.ts)
+  - getJogadores(): Busca todos ordenados por pontuação
+  - getJogador(id): Busca por ID
+  - createJogador(): Cria novo com valores padrão (0 pts, 0 vitórias, ativo)
+  - updateJogador(): Atualiza dados e timestamp
+
+✅ Schema de validação Zod criado (lib/validations/jogador.ts)
+  - Nome: mínimo 3 caracteres, máximo 255
+  - Setor: mínimo 2 caracteres, máximo 255
+  - Foto URL: opcional, valida URL ou aceita string vazia
+
+✅ Componente JogadorCard criado (components/jogadores/JogadorCard.tsx)
+  - Exibe foto ou avatar padrão (emoji 👤)
+  - Grid de estatísticas: Pontos, Vitórias, Jogos
+  - Badge "Inativo" para jogadores inativos
+  - Estilos do Design System aplicados
+
+✅ Modal NovoJogadorModal criado (components/jogadores/NovoJogadorModal.tsx)
+  - Formulário com 3 campos (nome*, setor*, foto_url)
+  - Validação em tempo real com Zod
+  - Mensagens de erro específicas por campo
+  - Estados de loading durante salvamento
+  - Reset do formulário após sucesso
+
+✅ Página de jogadores atualizada (app/jogadores/page.tsx)
+  - Estado de loading com mensagem
+  - Botão "Novo Jogador" no header
+  - Grid responsivo: 1 col (mobile) → 4 cols (desktop XL)
+  - Empty state quando não há jogadores
+  - Integração com toast (Sonner) para feedbacks
+  - Recarregamento automático após cadastro
+
+**Arquivos Criados:**
+- lib/services/jogadores.ts (57 linhas)
+- lib/validations/jogador.ts (18 linhas)
+- components/jogadores/JogadorCard.tsx (52 linhas)
+- components/jogadores/NovoJogadorModal.tsx (122 linhas)
+
+**Arquivos Modificados:**
+- app/jogadores/page.tsx (68 linhas)
+
+**Funcionalidades Implementadas:**
+- ✅ Listagem de jogadores com ordenação por pontuação
+- ✅ Cadastro de novos jogadores
+- ✅ Validação de formulários
+- ✅ Avatar padrão para jogadores sem foto
+- ✅ Grid responsivo
+- ✅ Toast notifications
+- ✅ Loading states
+- ✅ Empty states
+
+**LOTE 3 - COMPLETO! ✅**
+
+---
+
+## 🔧 Correções Pós-Implementação
+
+### Correção 1: Constraint UNIQUE para Nomes (Data: Implementação Fase 2)
+
+**Problema Identificado:**
+- Sistema permitia cadastrar jogadores com nomes duplicados
+- Teste 37 identificou a ausência de validação
+
+**Solução Implementada:**
+
+**1. Migration no Supabase:**
+```sql
+-- Migration: add_unique_constraint_jogador_nome
+ALTER TABLE jogadores 
+ADD CONSTRAINT jogadores_nome_unique UNIQUE (nome);
+
+CREATE INDEX IF NOT EXISTS idx_jogadores_nome ON jogadores(nome);
+```
+
+**2. Tratamento de Erro no Frontend:**
+```typescript
+// components/jogadores/NovoJogadorModal.tsx
+if (error.code === '23505' || error.message?.includes('jogadores_nome_unique')) {
+  toast.error('❌ Já existe um jogador cadastrado com este nome!')
+}
+```
+
+**Regra de Negócio:**
+- ✅ Nome do jogador deve ser único no sistema
+- ✅ Não permite duplicação independente do setor
+- ✅ Mensagem de erro amigável via toast
+- ✅ Código de erro PostgreSQL: 23505 (unique violation)
+
+**Testes Atualizados:**
+- Teste 37: Agora valida que sistema IMPEDE duplicação
+- Teste 37.1: Valida que nomes similares mas diferentes são aceitos
 
