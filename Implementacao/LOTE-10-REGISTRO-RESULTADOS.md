@@ -294,7 +294,7 @@ const handleConfirmarVencedor = async (vencedorId: string) => {
 - [ ] Registro salvando no banco
 - [ ] Vencedor ficando verde
 - [ ] Perdedor ficando cinza (opacity)
-- [ ] Toast de sucesso
+- [ ] Notificacoes (toast) do Sonner funcionando
 - [ ] Bracket atualizando apos registro
 - [ ] Validacoes funcionando corretamente
 

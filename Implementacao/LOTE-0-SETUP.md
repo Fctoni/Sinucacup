@@ -42,7 +42,7 @@ npx shadcn-ui@latest add badge
 npx shadcn-ui@latest add input
 npx shadcn-ui@latest add label
 npx shadcn-ui@latest add select
-npx shadcn-ui@latest add toast
+npx shadcn-ui@latest add sonner
 ```
 
 ### 4. Configurar Supabase
@@ -98,12 +98,11 @@ sinucacup_v2/
 │   └── ranking/
 │       └── page.tsx
 ├── components/
-│   ├── ui/ (shadcn components)
+│   ├── ui/ (shadcn components - incluindo sonner)
 │   ├── layout/
 │   │   ├── Header.tsx
 │   │   └── Navigation.tsx
 │   └── shared/
-│       └── Toast.tsx
 ├── lib/
 │   ├── supabase.ts
 │   └── utils.ts

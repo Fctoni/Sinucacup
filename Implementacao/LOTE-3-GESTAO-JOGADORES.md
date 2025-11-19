@@ -282,17 +282,16 @@ export default function NovoJogadorModal({ isOpen, onClose, onSuccess }: Props) 
 'use client'
 
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { getJogadores } from '@/lib/services/jogadores'
 import { Jogador } from '@/types'
 import JogadorCard from '@/components/jogadores/JogadorCard'
 import NovoJogadorModal from '@/components/jogadores/NovoJogadorModal'
-import Toast from '@/components/shared/Toast'
 
 export default function JogadoresPage() {
   const [jogadores, setJogadores] = useState<Jogador[]>([])
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   
   const fetchJogadores = async () => {
     try {
@@ -300,7 +299,7 @@ export default function JogadoresPage() {
       const data = await getJogadores()
       setJogadores(data)
     } catch (error: any) {
-      setToast({ message: 'Erro ao carregar jogadores', type: 'error' })
+      toast.error('Erro ao carregar jogadores')
     } finally {
       setLoading(false)
     }
@@ -311,7 +310,7 @@ export default function JogadoresPage() {
   }, [])
   
   const handleSuccess = () => {
-    setToast({ message: '✅ Jogador cadastrado com sucesso!', type: 'success' })
+    toast.success('✅ Jogador cadastrado com sucesso!')
     fetchJogadores()
   }
   
@@ -352,14 +351,6 @@ export default function JogadoresPage() {
         onClose={() => setModalOpen(false)}
         onSuccess={handleSuccess}
       />
-      
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
     </div>
   )
 }
@@ -373,7 +364,7 @@ export default function JogadoresPage() {
 - [ ] Validacao de campos com Zod
 - [ ] Mensagens de erro aparecendo
 - [ ] Jogador sendo inserido no banco
-- [ ] Toast de sucesso aparecendo
+- [ ] Notificacoes (toast) do Sonner funcionando
 - [ ] Grid responsivo (1 col mobile, 4 cols desktop)
 - [ ] Avatar padrao para jogadores sem foto
 - [ ] Estatisticas zeradas em novos jogadores

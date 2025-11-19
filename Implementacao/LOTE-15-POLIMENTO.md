@@ -77,73 +77,44 @@ export default function ErrorMessage({ mensagem, onTentarNovamente }: Props) {
 
 ### 4. Sistema de Notificacoes Global
 
-**lib/contexts/ToastContext.tsx:**
+**Notificacoes com Sonner (ja configurado):**
+
+O sistema usa o Sonner (shadcn/ui) para notificacoes, ja configurado no `layout.tsx` desde o Lote 2.
+
+**Uso em qualquer componente:**
 
 ```typescript
-'use client'
+import { toast } from 'sonner'
 
-import { createContext, useContext, useState, ReactNode } from 'react'
-import Toast from '@/components/shared/Toast'
+// Sucesso
+toast.success('✅ Operacao realizada com sucesso!')
 
-type ToastType = 'success' | 'error' | 'warning' | 'info'
+// Erro
+toast.error('❌ Erro ao executar operacao')
 
-type ToastContextType = {
-  showToast: (message: string, type: ToastType) => void
-}
+// Info
+toast.info('ℹ️ Informacao importante')
 
-const ToastContext = createContext<ToastContextType | undefined>(undefined)
+// Aviso
+toast.warning('⚠️ Atencao necessaria')
 
-export function ToastProvider({ children }: { children: ReactNode }) {
-  const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null)
-  
-  const showToast = (message: string, type: ToastType) => {
-    setToast({ message, type })
-  }
-  
-  return (
-    <ToastContext.Provider value={{ showToast }}>
-      {children}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
-    </ToastContext.Provider>
-  )
-}
+// Com duracao customizada
+toast.success('Mensagem', { duration: 5000 })
 
-export function useToast() {
-  const context = useContext(ToastContext)
-  if (!context) {
-    throw new Error('useToast deve ser usado dentro de ToastProvider')
-  }
-  return context
-}
+// Com acao
+toast('Arquivo salvo', {
+  action: {
+    label: 'Desfazer',
+    onClick: () => console.log('Desfazer'),
+  },
+})
 ```
 
-**app/layout.tsx (adicionar provider):**
-
-```typescript
-import { ToastProvider } from '@/lib/contexts/ToastContext'
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="pt-BR">
-      <body>
-        <ToastProvider>
-          <Header />
-          <Navigation />
-          <main className="container mx-auto px-4 py-8">
-            {children}
-          </main>
-        </ToastProvider>
-      </body>
-    </html>
-  )
-}
-```
+**Sonner ja esta configurado no layout principal com:**
+- Posicao: top-right
+- Rich colors habilitado
+- Auto-dismiss apos 3 segundos
+- Suporte a stacking de multiplas notificacoes
 
 ### 5. Melhorias de Acessibilidade
 
@@ -318,7 +289,7 @@ export default function Button({
 #### **Geral**
 - [ ] Navegacao funcionando
 - [ ] Todas paginas acessiveis
-- [ ] Toast de sucesso/erro
+- [ ] Notificacoes (Sonner) de sucesso/erro funcionando
 - [ ] Loading states
 - [ ] Empty states
 - [ ] Responsividade mobile
@@ -389,7 +360,7 @@ export function logInfo(contexto: string, data: any) {
 - [ ] Todos os componentes tem loading states
 - [ ] Todos os componentes tem empty states
 - [ ] Todos os erros tem mensagens claras
-- [ ] Toast funcionando globalmente
+- [ ] Notificacoes (Sonner) funcionando globalmente
 - [ ] Animacoes suaves
 - [ ] Responsividade mobile testada
 - [ ] Acessibilidade (contraste, cursors)

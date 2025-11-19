@@ -335,17 +335,16 @@ export default function NovaEdicaoModal({ isOpen, onClose, onSuccess }: Props) {
 'use client'
 
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { getEdicoes } from '@/lib/services/edicoes'
 import { Edicao } from '@/types'
 import EdicaoCard from '@/components/edicoes/EdicaoCard'
 import NovaEdicaoModal from '@/components/edicoes/NovaEdicaoModal'
-import Toast from '@/components/shared/Toast'
 
 export default function EdicoesPage() {
   const [edicoes, setEdicoes] = useState<Edicao[]>([])
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   
   const fetchEdicoes = async () => {
     try {
@@ -353,7 +352,7 @@ export default function EdicoesPage() {
       const data = await getEdicoes()
       setEdicoes(data)
     } catch (error: any) {
-      setToast({ message: 'Erro ao carregar edicoes', type: 'error' })
+      toast.error('Erro ao carregar edicoes')
     } finally {
       setLoading(false)
     }
@@ -364,7 +363,7 @@ export default function EdicoesPage() {
   }, [])
   
   const handleSuccess = () => {
-    setToast({ message: '✅ Edicao criada com sucesso!', type: 'success' })
+    toast.success('✅ Edicao criada com sucesso!')
     fetchEdicoes()
   }
   
@@ -405,14 +404,6 @@ export default function EdicoesPage() {
         onClose={() => setModalOpen(false)}
         onSuccess={handleSuccess}
       />
-      
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
     </div>
   )
 }
@@ -432,7 +423,7 @@ npm install date-fns
 - [ ] Numero de edicao sugerido automaticamente
 - [ ] Validacao de formulario
 - [ ] Data formatada em pt-BR
-- [ ] Toast de sucesso
+- [ ] Notificacoes (toast) do Sonner funcionando
 - [ ] Grid responsivo
 - [ ] Link para detalhes (mesmo sem pagina ainda)
 

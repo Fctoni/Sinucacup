@@ -207,48 +207,32 @@ export default function Navigation() {
 }
 ```
 
-### 5. Criar Componente: Toast
+### 5. Configurar Sonner (Notificacoes)
 
-**components/shared/Toast.tsx:**
+O Sonner e o componente de notificacoes recomendado pelo shadcn/ui (substituiu o Toast).
+
+**Ja instalado no Lote 0:**
+```bash
+npx shadcn@latest add sonner
+```
+
+**Uso no projeto:**
+O Sonner sera configurado no layout e usado via `toast()` em qualquer componente:
 
 ```typescript
-'use client'
+import { toast } from 'sonner'
 
-import { useEffect } from 'react'
+// Sucesso
+toast.success('✅ Operacao realizada com sucesso!')
 
-type ToastProps = {
-  message: string
-  type: 'success' | 'error' | 'warning' | 'info'
-  onClose: () => void
-}
+// Erro
+toast.error('❌ Erro ao executar operacao')
 
-export default function Toast({ message, type, onClose }: ToastProps) {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose()
-    }, 3000)
-    
-    return () => clearTimeout(timer)
-  }, [onClose])
-  
-  const bgColors = {
-    success: 'bg-verde-medio',
-    error: 'bg-vermelho-erro',
-    warning: 'bg-laranja-aviso',
-    info: 'bg-azul-info',
-  }
-  
-  return (
-    <div className={`
-      fixed top-4 right-4 z-50 
-      ${bgColors[type]} text-white 
-      px-6 py-4 rounded-lg shadow-card-hover
-      animate-slide-in-right
-    `}>
-      <p className="font-semibold">{message}</p>
-    </div>
-  )
-}
+// Info
+toast.info('ℹ️ Informacao importante')
+
+// Aviso
+toast.warning('⚠️ Atencao necessaria')
 ```
 
 ### 6. Atualizar Layout Principal
@@ -260,6 +244,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import Navigation from '@/components/layout/Navigation'
+import { Toaster } from '@/components/ui/sonner'
 
 export const metadata: Metadata = {
   title: 'TecnoHard Sinuca Cup',
@@ -279,6 +264,7 @@ export default function RootLayout({
         <main className="container mx-auto px-4 py-8">
           {children}
         </main>
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   )
@@ -408,7 +394,7 @@ theme: {
 - [ ] Pagina inicial visual e informativa
 - [ ] Classes utilitarias (card-base, btn-primary) funcionando
 - [ ] Responsividade basica (mobile/desktop)
-- [ ] Componente Toast criado
+- [ ] Sonner configurado no layout
 - [ ] Animacoes suaves
 
 ## Entregaveis
