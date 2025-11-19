@@ -411,3 +411,53 @@ const handleSalvarOrdem = async () => {
 ## Proxima Etapa
 ➡️ LOTE 8: Geracao de Chaveamento (Bracket)
 
+## Progresso de implementação: **preencher aqui abaixo sempre tudo que foi feito ao final do lote**
+
+✅ Tarefa 1: Pacotes @dnd-kit instalados
+  - @dnd-kit/core
+  - @dnd-kit/sortable
+  - @dnd-kit/utilities
+
+✅ Tarefa 2: Funções de drag & drop adicionadas ao serviço (lib/services/duplas.ts)
+  - trocarJogadoresEntreDuplas() → troca jogadores entre 2 duplas com recálculo
+  - reordenarDuplas() → atualiza posições das duplas no banco
+
+✅ Tarefa 3: Componente DuplaCardDraggable criado (components/duplas/DuplaCardDraggable.tsx)
+  - Sub-componente JogadorDraggable com ícone ⋮⋮
+  - Modo normal: arrasta jogadores individuais entre duplas
+  - Modo reordenar: arrasta cards inteiros
+  - Feedback visual (opacity, borders, cursor)
+  - Posição visual dinâmica durante reordenação
+
+✅ Tarefa 4: Página atualizada com DnD Context (app/edicoes/[id]/page.tsx)
+  - DndContext wrapper
+  - Handler handleDragEnd() com 2 modos (jogadores vs duplas)
+  - Botão "🔀 Modo: Reordenar Chaveamento"
+  - Banner laranja quando modo ativo
+  - Handler handleSalvarOrdem() para persistir ordem
+
+**FUNCIONALIDADES IMPLEMENTADAS:**
+✅ Drag & drop de jogadores individuais entre duplas
+  - Ícone ⋮⋮ nos jogadores
+  - Cursor grab/grabbing
+  - Jogador arrastado fica transparente (40%)
+  - Jogador destino com borda amarela
+  - Recálculo automático de pontuação
+  - Atualização de nome da dupla
+
+✅ Modo reordenar (cards inteiros)
+  - Ícone ⋮⋮ no título da dupla
+  - Banner laranja explicativo
+  - Botões de exclusão desaparecem
+  - Jogadores não são mais arrastáveis
+  - Cards ficam arrastáveis
+  - Números das duplas atualizam automaticamente durante drag
+
+**CORREÇÕES APLICADAS:**
+✅ Listeners e attributes adicionados ao card draggable (estava sem eventos de drag)
+✅ Refs combinados (setNodeRef + setDropRef) no mesmo elemento
+✅ Posição visual (#1, #2, #3...) atualiza em tempo real durante reordenação
+✅ Prop posicaoVisual implementada para sincronizar números com ordem visual
+
+**LOTE 7 - COMPLETO! ✅**
+

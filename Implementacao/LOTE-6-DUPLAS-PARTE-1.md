@@ -476,3 +476,41 @@ const handleExcluirDupla = async (duplaId: string) => {
 ## Proxima Etapa
 ➡️ LOTE 7: Formacao de Duplas - Parte 2 (Drag & Drop)
 
+## Progresso de implementação: **preencher aqui abaixo sempre tudo que foi feito ao final do lote**
+
+✅ Tarefa 1: Serviço de duplas criado (lib/services/duplas.ts)
+  - getDuplasPorEdicao() → buscar duplas com jogadores
+  - createDupla() → criar dupla individual
+  - deleteDupla() → excluir dupla
+  - gerarDuplasAutomaticas() → algoritmo de balanceamento (1º+último, 2º+penúltimo)
+  - validarExclusaoDupla() → verificar se dupla está no chaveamento
+  - reorganizarPosicoesDuplas() → manter numeração sequencial
+
+✅ Tarefa 2: Componente DuplaCard criado (components/duplas/DuplaCard.tsx)
+  - Exibe ambos jogadores com setor
+  - Mostra pontuação total
+  - Botão de exclusão
+
+✅ Tarefa 3: Modal de criação manual criado (components/duplas/CriarDuplaManualModal.tsx)
+  - Dropdowns de jogadores com pontuação
+  - Checkbox "apenas inscritos"
+  - Validações (jogadores diferentes, campos obrigatórios)
+  - Contador de jogadores disponíveis
+
+✅ Tarefa 4: Página de detalhes atualizada (app/edicoes/[id]/page.tsx)
+  - Seção de duplas (status = chaveamento)
+  - Botão "Gerar Automaticamente"
+  - Botão "Criar Manual"
+  - Grid responsivo de duplas
+  - Handlers completos (gerar, criar, excluir)
+
+**CORREÇÕES APLICADAS:**
+✅ Botão "Iniciar Chaveamento" implementado com handler
+✅ Transição de status "inscricoes_abertas" → "chaveamento"
+✅ Validação mínimo 4 jogadores inscritos
+✅ Filtragem inteligente: apenas jogadores disponíveis (sem dupla) aparecem no modal
+✅ Banner de aviso quando nenhum jogador disponível
+✅ Reorganização automática de posições após criar/excluir duplas (elimina "buracos")
+
+**LOTE 6 - COMPLETO! ✅**
+

@@ -189,7 +189,7 @@ Cada lote depende dos anteriores. Pular etapas causa problemas.
 ### Valide Sempre
 Use os checklists para garantir qualidade.
 
-
+ 
 
 ### Teste Constantemente
 Nao espere tudo pronto para testar. Teste a cada lote.
