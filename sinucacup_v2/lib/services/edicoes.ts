@@ -64,3 +64,21 @@ export async function getProximoNumeroEdicao(ano: number) {
   return data.length > 0 ? data[0].numero + 1 : 1
 }
 
+export async function iniciarCampeonato(edicaoId: string) {
+  // Validar que tem chaveamento
+  const { data: partidas, error: errorPartidas } = await supabase
+    .from('partidas')
+    .select('id')
+    .eq('edicao_id', edicaoId)
+    .limit(1)
+  
+  if (errorPartidas) throw errorPartidas
+  
+  if (!partidas || partidas.length === 0) {
+    throw new Error('Nao ha chaveamento gerado para esta edicao')
+  }
+  
+  // Atualizar status
+  return await updateEdicaoStatus(edicaoId, 'em_andamento')
+}
+
